@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
+#include <ctype.h>
 
 #define PLAYER_ONE -1
 #define PLAYER_TWO -2
@@ -160,38 +161,48 @@ void setup_board()
 
 void input_player_choice(int player_num, char *player_name)
 {
+    static const char valid_spot[] = "Please choose a valid spot on the board";
     int beginning_x_pos = 0;
     int beginning_y_pos = 0;
 
     get_term_size(&beginning_x_pos, &beginning_y_pos);
 
-    printf("%s, please choose your position (0-9 from top left to "
-        "bottom right): ", player_name);
-
-    char pos_buffer[256] = "";
-    (void)fgets(pos_buffer, 256, stdin);
-
-    // TODO: isdigit(pos_buffer[0]); loop
-    int pos = pos_buffer[0] - '0';
-
-    //  r  c
-    // [0][0] = 0
-    // [0][1] = 1
-    // [0][2] = 2
-    // [1][0] = 3
-    // [1][1] = 4
-    // [1][2] = 5
-    // [2][0] = 6
-    // [2][1] = 7
-    // [2][2] = 8
-
-    int row = 0;
-    if (pos >= 3)
+    int choosen = 0;
+    while (!choosen)
     {
-        row = (pos - 6) < 0 ? 1 : 2;
+        printf("%s, please choose your position (0-8 from top left to "
+                "bottom right): ", player_name);
+
+        char pos_buffer[256] = "";
+        (void)fgets(pos_buffer, 256, stdin);
+
+        if (!isdigit(pos_buffer[0]) || pos_buffer[0] == '9')
+        {
+            printf("%s\n", valid_spot);
+        }
+        else
+        {
+            int pos = pos_buffer[0] - '0';
+
+            int row = 0;
+            if (pos >= 3)
+            {
+                row = (pos - 6) < 0 ? 1 : 2;
+            }
+            int col = pos % 3;
+
+            if (positions[row][col] == PLAYER_ONE ||
+                positions[row][col] == PLAYER_TWO)
+            {
+                printf("%s\n", valid_spot);
+            }
+            else
+            {
+                positions[row][col] = player_num;
+                choosen = 1;
+            }
+        }
     }
-    int col = pos % 3;
-    positions[row][col] = player_num;
 }
 
 int win_condition()
