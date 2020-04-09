@@ -207,26 +207,76 @@ void input_player_choice(int player_num, char *player_name)
 
 int win_condition()
 {
-    return 0;
+    int player_who_won = 0;
+    for (size_t row = 0; row < NUM_ROWS; ++row)
+    {
+        if (positions[row][0] == positions[row][1] &&
+            positions[row][0] == positions[row][2])
+        {
+            player_who_won = positions[row][0];
+            break;
+        }
+        else if (positions[0][row] == positions[1][row] &&
+                 positions[0][row] == positions[2][row])
+        {
+            player_who_won = positions[0][row];
+            break;
+        }
+
+        if (row == 1)
+        {
+            if (positions[row][1] == positions[0][0] &&
+                positions[row][1] == positions[2][2])
+            {
+                player_who_won = positions[row][1];
+                break;
+            }
+            else if (positions[row][1] == positions[0][2] &&
+                     positions[row][1] == positions[2][0])
+            {
+                player_who_won = positions[row][1];
+                break;
+            }
+        }
+    }
+
+    return player_who_won;
+}
+
+void print_winner(int player_who_won, char *player_one_name, char *player_two_name)
+{
+    if (player_who_won == PLAYER_ONE)
+    {
+        printf("%s won!\n", player_one_name);
+    }
+    else
+    {
+        printf("%s won!\n", player_two_name);
+    }
 }
 
 int play(char *player_one_name, char *player_two_name)
 {
+    int player_who_won = 0;
     int done = 0;
     while (!done)
     {
         setup_board();
         input_player_choice(PLAYER_ONE, player_one_name);
-        if (win_condition())
+        if ((player_who_won = win_condition()) != 0)
         {
+            setup_board();
+            print_winner(player_who_won, player_one_name, player_two_name);
             done = 1;
         }
         else
         {
             setup_board();
             input_player_choice(PLAYER_TWO, player_two_name);
-            if (win_condition())
+            if ((player_who_won = win_condition()) != 0)
             {
+                setup_board();
+                print_winner(player_who_won, player_one_name, player_two_name);
                 done = 1;
             }
         }
