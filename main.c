@@ -8,6 +8,9 @@
 
 #define PLAYER_ONE -1
 #define PLAYER_TWO -2
+#define DRAW -3
+
+#define MAX_NUM_DRAWS 8
 
 #define BOARD_WIDTH  17
 #define BOARD_HEIGHT 9
@@ -207,37 +210,71 @@ void input_player_choice(int player_num, char *player_name)
 
 int win_condition()
 {
+    int num_draws = 0;
     int player_who_won = 0;
     for (size_t row = 0; row < NUM_ROWS; ++row)
     {
-        if (positions[row][0] == positions[row][1] &&
-            positions[row][0] == positions[row][2])
+        if (positions[row][0] < 0 && positions[row][1] < 0 &&
+            positions[row][2] < 0)
         {
-            player_who_won = positions[row][0];
-            break;
+            if (positions[row][0] == positions[row][1] &&
+                    positions[row][0] == positions[row][2])
+            {
+                player_who_won = positions[row][0];
+                break;
+            }
+
+            num_draws++;
         }
-        else if (positions[0][row] == positions[1][row] &&
-                 positions[0][row] == positions[2][row])
+
+        if (positions[0][row] < 0 && positions[1][row] < 0 &&
+            positions[2][row] < 0)
         {
-            player_who_won = positions[0][row];
-            break;
+            if (positions[0][row] == positions[1][row] &&
+                positions[0][row] == positions[2][row])
+            {
+                player_who_won = positions[0][row];
+                break;
+            }
+
+            num_draws++;
         }
 
         if (row == 1)
         {
-            if (positions[row][1] == positions[0][0] &&
-                positions[row][1] == positions[2][2])
+            if (positions[row][1] < 0 && positions[0][0] < 0 &&
+                positions[2][2] < 0)
             {
-                player_who_won = positions[row][1];
-                break;
+                if (positions[row][1] == positions[0][0] &&
+                        positions[row][1] == positions[2][2])
+                {
+                    player_who_won = positions[row][1];
+                    break;
+                }
+
+                num_draws++;
             }
-            else if (positions[row][1] == positions[0][2] &&
-                     positions[row][1] == positions[2][0])
+
+            if (positions[row][1] < 0 && positions[0][2] < 0 &&
+                positions[2][0] < 0)
             {
-                player_who_won = positions[row][1];
-                break;
+                if (positions[row][1] == positions[0][2] &&
+                    positions[row][1] == positions[2][0])
+                {
+                    player_who_won = positions[row][1];
+                    break;
+                }
+
+                num_draws++;
             }
         }
+    }
+
+    printf("ND: %d\n", num_draws);
+
+    if (num_draws == MAX_NUM_DRAWS)
+    {
+        player_who_won = DRAW;
     }
 
     return player_who_won;
@@ -249,9 +286,17 @@ void print_winner(int player_who_won, char *player_one_name, char *player_two_na
     {
         printf("%s won!\n", player_one_name);
     }
-    else
+    else if (player_who_won == PLAYER_TWO)
     {
         printf("%s won!\n", player_two_name);
+    }
+    else if (player_who_won == DRAW)
+    {
+        puts("Draw!");
+    }
+    else
+    {
+        puts("ERROR: Unknown state");
     }
 }
 
