@@ -287,6 +287,7 @@ int play(char *player_one_name, char *player_two_name)
 
 int main()
 {
+    clear_screen();
     char player_one_name[256] = "";
     char player_two_name[256] = "";
 
