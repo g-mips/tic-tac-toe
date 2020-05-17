@@ -17,6 +17,8 @@
 static int middle_y = 0;
 static int middle_x = 0;
 
+static WINDOW *board_win = NULL;
+
 static int positions[NUM_ROWS][NUM_COLS] =
 {
     { 0, 1, 2 },
@@ -28,16 +30,6 @@ static int positions[NUM_ROWS][NUM_COLS] =
 static char interpret_position_number(int pos_num);
 
 /**** FUNCTIONS ****/
-void board_set_middle_y(int new_middle_y)
-{
-    middle_y = new_middle_y;
-}
-
-void board_set_middle_x(int new_middle_x)
-{
-    middle_x = new_middle_x;
-}
-
 static char
 interpret_position_number(
     int pos_num)
@@ -63,7 +55,7 @@ board_setup(void)
          y_pos < BOARD_HEIGHT;
          ++y_pos)
     {
-        move(middle_y + y_pos, middle_x);
+        wmove(board_win, y_pos + 1, 1);
         size_t cell_x_pos = 0;
         for (size_t x_pos = 0;
              x_pos < BOARD_WIDTH;
@@ -72,7 +64,7 @@ board_setup(void)
             // Are we at a column seperator?
             if ((cell_x_pos != 0) && ((cell_x_pos % COL_SEP_POS) == 0))
             {
-                addstr("|");
+                waddstr(board_win, "|");
                 cell_x_pos = 0;
             }
             else
@@ -104,17 +96,17 @@ board_setup(void)
                     char position_num[256] = "";
                     sprintf(position_num, "%c",
                         interpret_position_number(positions[pos_row][pos_col]));
-                    addstr(position_num);
+                    waddstr(board_win, position_num);
                 }
                 // Are we at a row seperator
                 else if (cell_y_pos != 0 && y_pos != (BOARD_HEIGHT - 1) &&
                     (cell_y_pos % ROW_SEP_POS) == 0)
                 {
-                    addstr("_");
+                    waddstr(board_win, "_");
                 }
                 else
                 {
-                    addstr(" ");
+                    waddstr(board_win, " ");
                 }
                 ++cell_x_pos;
             }
@@ -131,5 +123,24 @@ board_setup(void)
         }
     }
 
-    refresh();
+    wrefresh(board_win);
+}
+
+void
+board_init()
+{
+    middle_y = (LINES / 2) - BOARD_Y_MIDDLE;
+    middle_x = (COLS / 2) - BOARD_X_MIDDLE;
+    board_win = newwin(WINDOW_HEIGHT, WINDOW_WIDTH, middle_y, middle_x);
+
+    box(board_win, 0, 0);
+}
+
+void
+board_fini()
+{
+    wclear(board_win);
+    wrefresh(board_win);
+    delwin(board_win);
+    board_win = NULL;
 }
