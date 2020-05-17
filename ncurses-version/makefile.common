@@ -1,0 +1,37 @@
+# Directory info
+SRC_DIR=./src
+INC_DIR=./include
+
+BIN_DIR=$(BLD_DIR)/bin
+OBJ_DIR=$(BLD_DIR)/obj
+BLD_SRC_DIR=$(BLD_DIR)/src
+
+# File info
+HEADERS=$(INC_DIR)/board.h $(INC_DIR)/player.h
+C_FILES=$(SRC_DIR)/main.c $(SRC_DIR)/board.c $(SRC_DIR)/player.c
+O_FILES=$(OBJ_DIR)/main.o $(OBJ_DIR)/board.o $(OBJ_DIR)/player.o
+
+EXE_NAME=tic-tac-toe
+EXE=$(BIN_DIR)/$(EXE_NAME)
+
+# Compiler info
+CC=gcc
+HEADER_DIRS=-I$(INC_DIR)
+LIBS=-lncurses
+
+.PHONY: all
+all: $(EXE)
+
+$(O_FILES): $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(HEADERS)
+	mkdir -p $(OBJ_DIR)
+	mkdir -p $(BLD_SRC_DIR)
+	cp $(SRC_DIR)/* $(BLD_SRC_DIR)/.
+	$(CC) $(CFLAGS) -c $< $(HEADER_DIRS) -o $@
+
+$(EXE): $(O_FILES)
+	mkdir -p $(BIN_DIR)
+	$(CC) -o $@ $^ $(LIBS)
+
+.PHONY: clean
+clean:
+	-rm -rf $(BLD_DIR)

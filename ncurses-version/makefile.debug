@@ -1,0 +1,12 @@
+BLD_DIR=./build/debug
+CFLAGS=$(COMMON_CFLAGS) -O1 -DDEBUG -g
+export BLD_DIR
+export CFLAGS
+
+.PHONY: all
+all:
+	make -f makefile.common
+
+.PHONY: clean
+clean:
+	make -f makefile.common clean

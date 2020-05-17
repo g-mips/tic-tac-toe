@@ -1,0 +1,12 @@
+BLD_DIR=./build/release
+CFLAGS=$(COMMON_CFLAGS) -O2
+export BLD_DIR
+export CFLAGS
+
+.PHONY: all
+all:
+	make -f makefile.common
+
+.PHONY: clean
+clean:
+	make -f makefile.common clean
