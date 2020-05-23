@@ -2,10 +2,39 @@
 
 #include "player.h"
 
-/*void
-player_input_choice()
+static mmask_t cur_mouse_events = 0;
+
+void
+player_init(void)
 {
-}*/
+    cur_mouse_events = mousemask(
+        BUTTON1_CLICKED |
+        BUTTON1_PRESSED |
+        BUTTON1_RELEASED, NULL);
+}
+
+MEVENT
+player_input_choice(void)
+{
+    MEVENT event;
+    bool done = false;
+    while (!done)
+    {
+        int ch = getch();
+        if (ch == KEY_MOUSE)
+        {
+            if (getmouse(&event) == OK)
+            {
+                if (event.bstate & BUTTON1_CLICKED)
+                {
+                    done = true;
+                }
+            }
+        }
+    }
+
+    return event;
+}
 
 void
 player_get_info(
@@ -36,4 +65,3 @@ player_get_info(
     wrefresh(player_info_window);
     delwin(player_info_window);
 }
-

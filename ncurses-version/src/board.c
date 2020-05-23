@@ -9,10 +9,6 @@
 #define COL_SEP_POS 5
 #define ROW_SEP_POS 2
 
-#define PLAYER_ONE -1
-#define PLAYER_TWO -2
-#define DRAW -3
-
 /**** GLOBALS ****/
 static int middle_y = 0;
 static int middle_x = 0;
@@ -48,8 +44,13 @@ interpret_position_number(
 }
 
 void
-board_setup(void)
+board_setup(struct coordinates *position, int player_num)
 {
+    if (position != NULL)
+    {
+        wmouse_trafo(board_win, &(position->y), &(position->x), false);
+    }
+
     size_t cell_y_pos = 0;
     for (size_t y_pos = 0;
          y_pos < BOARD_HEIGHT;
@@ -92,6 +93,12 @@ board_setup(void)
                         pos_col = 2;
                     }
 
+                    if ((position != NULL) && (position->y == (y_pos + 1)) &&
+                        (position->x == (x_pos + 1)))
+                    {
+                        positions[pos_row][pos_col] = player_num;
+                    }
+
                     //addstr
                     char position_num[256] = "";
                     sprintf(position_num, "%c",
@@ -129,6 +136,7 @@ board_setup(void)
 void
 board_init(void)
 {
+    keypad(board_win, TRUE);
     middle_y = (LINES / 2) - BOARD_Y_MIDDLE;
     middle_x = (COLS / 2) - BOARD_X_MIDDLE;
     board_win = newwin(WINDOW_HEIGHT, WINDOW_WIDTH, middle_y, middle_x);

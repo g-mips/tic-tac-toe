@@ -13,8 +13,10 @@ main(int argc, char ** argv)
     initscr(); /* Start curses mode */
     noecho();
     cbreak();
-
+    keypad(stdscr, TRUE);
     refresh();
+
+    player_init();
 
     char player_one_name[PLAYER_MAX_STR_SIZE] = "";
     char player_two_name[PLAYER_MAX_STR_SIZE] = "";
@@ -23,8 +25,18 @@ main(int argc, char ** argv)
     player_get_info((LINES / 2), (COLS / 2),
         player_two_name, sizeof(player_two_name), 2);
 
+    noecho();
+
     board_init();
-    board_setup();
+    board_setup(NULL, DRAW);
+
+    MEVENT event = player_input_choice();
+
+    struct coordinates position = {
+        .x = event.x,
+        .y = event.y
+    };
+    board_setup(&position, PLAYER_ONE);
 
     getch();
 
