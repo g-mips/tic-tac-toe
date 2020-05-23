@@ -9,6 +9,18 @@
 #define COL_SEP_POS 5
 #define ROW_SEP_POS 2
 
+#define BEGIN_Y_POS 1
+#define BEGIN_X_POS 1
+
+#define CELL_X_BEG 0
+#define CELL_Y_BEG 0
+
+#define CELL_X_END (COL_SEP_POS - 1)
+#define CELL_Y_END (ROW_SEP_POS - 1)
+
+#define MARKER_POS_X 2
+#define MARKER_POS_Y 1
+
 /**** GLOBALS ****/
 static int middle_y = 0;
 static int middle_x = 0;
@@ -51,26 +63,28 @@ board_setup(MEVENT *position, int player_num)
         wmouse_trafo(board_win, &(position->y), &(position->x), false);
     }
 
-    size_t cell_y_pos = 0;
+    size_t cell_y_pos = CELL_Y_BEG;
     for (size_t y_pos = 0;
          y_pos < BOARD_HEIGHT;
          ++y_pos)
     {
-        wmove(board_win, y_pos + 1, 1);
-        size_t cell_x_pos = 0;
+        wmove(board_win, y_pos + BEGIN_Y_POS, BEGIN_X_POS);
+        size_t cell_x_pos = CELL_X_BEG;
         for (size_t x_pos = 0;
              x_pos < BOARD_WIDTH;
              ++x_pos)
         {
             // Are we at a column seperator?
-            if ((cell_x_pos != 0) && ((cell_x_pos % COL_SEP_POS) == 0))
+            if ((cell_x_pos != CELL_X_BEG) &&
+                ((cell_x_pos % COL_SEP_POS) == 0))
             {
                 waddstr(board_win, "|");
-                cell_x_pos = 0;
+                cell_x_pos = CELL_X_BEG;
             }
             else
             {
-                if ((cell_y_pos == 1) && (cell_x_pos == 2))
+                if ((cell_y_pos == MARKER_POS_Y) &&
+                    (cell_x_pos == MARKER_POS_X))
                 {
                     // Which position are we printing?
                     size_t pos_row = 0;
@@ -93,8 +107,9 @@ board_setup(MEVENT *position, int player_num)
                         pos_col = 2;
                     }
 
-                    if ((position != NULL) && (position->y == (y_pos + 1)) &&
-                        (position->x == (x_pos + 1)))
+                    if ((position != NULL) &&
+                        (position->y == (y_pos + BEGIN_X_POS)) &&
+                        (position->x == (x_pos + BEGIN_Y_POS)))
                     {
                         positions[pos_row][pos_col] = player_num;
                     }
@@ -106,8 +121,9 @@ board_setup(MEVENT *position, int player_num)
                     waddstr(board_win, position_num);
                 }
                 // Are we at a row seperator
-                else if (cell_y_pos != 0 && y_pos != (BOARD_HEIGHT - 1) &&
-                    (cell_y_pos % ROW_SEP_POS) == 0)
+                else if ((cell_y_pos != CELL_Y_BEG) &&
+                         (y_pos != (BOARD_HEIGHT - 1)) &&
+                         ((cell_y_pos % ROW_SEP_POS) == 0))
                 {
                     waddstr(board_win, "_");
                 }
@@ -119,7 +135,8 @@ board_setup(MEVENT *position, int player_num)
             }
         }
 
-        if ((cell_y_pos != 0) && (y_pos != (BOARD_HEIGHT - 1)) &&
+        if ((cell_y_pos != CELL_Y_BEG) &&
+            (y_pos != (BOARD_HEIGHT - 1)) &&
             ((cell_y_pos % ROW_SEP_POS) == 0))
         {
             cell_y_pos = 0;
