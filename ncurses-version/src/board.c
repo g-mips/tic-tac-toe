@@ -30,7 +30,7 @@ static char
 interpret_position_number(
     int pos_num)
 {
-    char pos_char = pos_num + '0';
+    char pos_char = ' ';
     if (pos_num == PLAYER_ONE)
     {
         pos_char = 'X';
