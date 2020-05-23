@@ -32,11 +32,7 @@ main(int argc, char ** argv)
 
     MEVENT event = player_input_choice();
 
-    struct coordinates position = {
-        .x = event.x,
-        .y = event.y
-    };
-    board_setup(&position, PLAYER_ONE);
+    board_setup(&event, PLAYER_ONE);
 
     getch();
 

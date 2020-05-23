@@ -44,7 +44,7 @@ interpret_position_number(
 }
 
 void
-board_setup(struct coordinates *position, int player_num)
+board_setup(MEVENT *position, int player_num)
 {
     if (position != NULL)
     {

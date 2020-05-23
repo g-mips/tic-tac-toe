@@ -14,13 +14,7 @@
 #define PLAYER_TWO -2
 #define DRAW -3
 
-struct coordinates
-{
-    int x;
-    int y;
-};
-
-void board_setup(struct coordinates *position, int player_num);
+void board_setup(MEVENT *position, int player_num);
 void board_init(void);
 void board_fini(void);
 
