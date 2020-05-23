@@ -127,7 +127,7 @@ board_setup(void)
 }
 
 void
-board_init()
+board_init(void)
 {
     middle_y = (LINES / 2) - BOARD_Y_MIDDLE;
     middle_x = (COLS / 2) - BOARD_X_MIDDLE;
@@ -137,7 +137,7 @@ board_init()
 }
 
 void
-board_fini()
+board_fini(void)
 {
     wclear(board_win);
     wrefresh(board_win);

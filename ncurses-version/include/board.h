@@ -11,7 +11,7 @@
 #define BOARD_Y_MIDDLE ((int)(BOARD_HEIGHT / 2) + 1)
 
 void board_setup(void);
-void board_init();
-void board_fini();
+void board_init(void);
+void board_fini(void);
 
 #endif // INCLUDE_BOARD_H

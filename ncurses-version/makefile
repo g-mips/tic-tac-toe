@@ -1,4 +1,4 @@
-COMMON_CFLAGS=-Wall
+COMMON_CFLAGS=-Wall -Werror -Wpedantic -Wstrict-prototypes
 export COMMON_CFLAGS
 
 .PHONY: all

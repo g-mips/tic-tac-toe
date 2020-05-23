@@ -2,10 +2,10 @@
 
 #include "player.h"
 
-void
+/*void
 player_input_choice()
 {
-}
+}*/
 
 void
 player_get_info(
