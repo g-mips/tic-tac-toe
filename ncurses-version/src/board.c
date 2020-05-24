@@ -32,27 +32,7 @@ static char board[WINDOW_HEIGHT + 1][WINDOW_WIDTH + 1] = {
     ""
 };
 
-/**** INTERNAL FUNCTION PROTOTYPES ****/
-static char interpret_position_number(int pos_num);
-
 /**** FUNCTIONS ****/
-static char
-interpret_position_number(
-    int pos_num)
-{
-    char pos_char = ' ';
-    if (pos_num == PLAYER_ONE)
-    {
-        pos_char = 'X';
-    }
-    else if (pos_num == PLAYER_TWO)
-    {
-        pos_char = 'O';
-    }
-
-    return pos_char;
-}
-
 bool
 board_adjust_position(MEVENT *position)
 {
