@@ -11,6 +11,7 @@ int
 main(int argc, char ** argv)
 {
     initscr(); /* Start curses mode */
+    curs_set(0);
     noecho();
     cbreak();
     keypad(stdscr, TRUE);
@@ -30,10 +31,14 @@ main(int argc, char ** argv)
     board_init();
     board_setup(NULL, DRAW);
 
+    int winner = 0;
     int cur_player = PLAYER_ONE;
+    char *cur_player_name = player_one_name;
     bool quit = false;
     while (!quit)
     {
+        mvprintw((LINES / 2) + (LINES / 4), (COLS / 2),
+            "%s's turn!", cur_player_name);
         bool choosen = false;
         MEVENT event = { 0 };
         while (!choosen)
@@ -65,9 +70,41 @@ main(int argc, char ** argv)
         if (!quit)
         {
             board_setup(&event, cur_player);
+
+            winner = board_who_won();
+            if (winner != 0)
+            {
+                break;
+            }
+
             cur_player = (cur_player == PLAYER_ONE) ? PLAYER_TWO : PLAYER_ONE;
+            cur_player_name = (cur_player == PLAYER_ONE) ?
+                player_one_name : player_two_name;
         }
     }
+
+    if (!quit)
+    {
+        char *winner_name = (winner == PLAYER_ONE) ?
+            player_one_name : player_two_name;
+
+        if (winner == DRAW)
+        {
+            move((LINES / 2) + (LINES / 4), (COLS / 2));
+            clrtoeol();
+            printw("Draw!");
+        }
+        else
+        {
+            move((LINES / 2) + (LINES / 4), (COLS / 2));
+            clrtoeol();
+            printw("%s is the winner!", winner_name);
+        }
+
+        (void)getch();
+    }
+
+    board_fini();
 
     endwin(); /* End curses mode */
 

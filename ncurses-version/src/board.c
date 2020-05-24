@@ -3,6 +3,8 @@
 #include "board.h"
 
 /**** DEFINES ****/
+#define NUM_MARKERS 9
+
 #define WIN_BEGIN_Y_POS 1
 #define WIN_BEGIN_X_POS 1
 
@@ -11,6 +13,8 @@
 
 #define MARKER_POS_X 3
 #define MARKER_POS_Y 2
+
+#define IS_EVEN(x) ((x % 2) == 0)
 
 /**** GLOBALS ****/
 static int middle_y = 0;
@@ -32,7 +36,97 @@ static char board[WINDOW_HEIGHT + 1][WINDOW_WIDTH + 1] = {
     ""
 };
 
+static char *markers[NUM_MARKERS] = {
+    &board[MARKER_POS_Y][MARKER_POS_X],
+    &board[MARKER_POS_Y][MARKER_POS_X + CELL_X_SEP_POS],
+    &board[MARKER_POS_Y][MARKER_POS_X + (CELL_X_SEP_POS * 2)],
+    &board[MARKER_POS_Y + CELL_Y_SEP_POS][MARKER_POS_X],
+    &board[MARKER_POS_Y + CELL_Y_SEP_POS][MARKER_POS_X + CELL_X_SEP_POS],
+    &board[MARKER_POS_Y + CELL_Y_SEP_POS][MARKER_POS_X + (CELL_X_SEP_POS * 2)],
+    &board[MARKER_POS_Y + (CELL_Y_SEP_POS * 2)][MARKER_POS_X],
+    &board[MARKER_POS_Y + (CELL_Y_SEP_POS * 2)][MARKER_POS_X + CELL_X_SEP_POS],
+    &board[MARKER_POS_Y + (CELL_Y_SEP_POS * 2)][MARKER_POS_X + (CELL_X_SEP_POS * 2)],
+};
+
+/**** INTERNAL FUNCTION PROTOTYPES ****/
+#ifdef DEBUG
+static void print_markers(void);
+
 /**** FUNCTIONS ****/
+static void
+print_markers(void)
+{
+    mvprintw(0, 0, "[ ");
+    for (size_t index = 0;
+         index < NUM_MARKERS;
+         ++index)
+    {
+        printw("%c ", *markers[index]);
+    }
+    printw("]\n");
+}
+#endif
+
+int
+board_who_won()
+{
+    int num_moves_played = 0;
+    int player_who_won = 0;
+
+    for (size_t index = 0;
+         index < NUM_MARKERS;
+         ++index)
+    {
+        if (*markers[index] != ' ')
+        {
+            if (index <= 2)
+            {
+                // Diagonals
+                if (IS_EVEN(index))
+                {
+                    if ((*markers[index] == *markers[index + (4 - index)]) &&
+                        (*markers[index] == *markers[index + (8 - index)]))
+                    {
+                        player_who_won = (*markers[index] == 'X') ?
+                            PLAYER_ONE : PLAYER_TWO;
+                        break;
+                    }
+                }
+
+                // Columns
+                if ((*markers[index] == *markers[index + 3]) &&
+                    (*markers[index] == *markers[index + 6]))
+                {
+                    player_who_won = (*markers[index] == 'X') ?
+                        PLAYER_ONE : PLAYER_TWO;
+                    break;
+                }
+            }
+
+            // Rows
+            if ((index % 3) == 0)
+            {
+                if ((*markers[index] == *markers[index + 1]) &&
+                    (*markers[index] == *markers[index + 2]))
+                {
+                    player_who_won = (*markers[index] == 'X') ?
+                        PLAYER_ONE : PLAYER_TWO;
+                    break;
+                }
+            }
+
+            ++num_moves_played;
+        }
+    }
+
+    if (player_who_won == 0 && num_moves_played == NUM_MARKERS)
+    {
+        player_who_won = DRAW;
+    }
+
+    return player_who_won;
+}
+
 bool
 board_adjust_position(MEVENT *position)
 {
@@ -130,6 +224,10 @@ board_setup(MEVENT *position, int player_num)
             board[y_pos] + WIN_BEGIN_X_POS, BOARD_WIDTH);
     }
     wrefresh(board_win);
+
+#ifdef DEBUG
+    print_markers();
+#endif
 }
 
 void
