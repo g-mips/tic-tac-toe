@@ -3,23 +3,14 @@
 #include "board.h"
 
 /**** DEFINES ****/
-#define NUM_PER_COL_MARKERS 3
-#define NUM_PER_ROW_MARKERS 3
-
 #define WIN_BEGIN_Y_POS 1
 #define WIN_BEGIN_X_POS 1
 
-#define CELL_X_BEG 0
-#define CELL_Y_BEG 0
+#define CELL_X_SEP_POS 6
+#define CELL_Y_SEP_POS 3
 
-#define CELL_X_SEP_POS 5
-#define CELL_Y_SEP_POS 2
-
-#define CELL_X_END (CELL_X_SEP_POS - 1)
-#define CELL_Y_END (CELL_Y_SEP_POS - 1)
-
-#define MARKER_POS_X 2
-#define MARKER_POS_Y 1
+#define MARKER_POS_X 3
+#define MARKER_POS_Y 2
 
 /**** GLOBALS ****/
 static int middle_y = 0;
@@ -27,11 +18,18 @@ static int middle_x = 0;
 
 static WINDOW *board_win = NULL;
 
-static int positions[NUM_PER_ROW_MARKERS][NUM_PER_COL_MARKERS] =
-{
-    { 0, 1, 2 },
-    { 3, 4, 5 },
-    { 6, 7, 8 }
+static char board[WINDOW_HEIGHT + 1][WINDOW_WIDTH + 1] = {
+    "",
+    "      |     |      ",
+    "      |     |      ",
+    " _____|_____|_____ ",
+    "      |     |      ",
+    "      |     |      ",
+    " _____|_____|_____ ",
+    "      |     |      ",
+    "      |     |      ",
+    "      |     |      ",
+    ""
 };
 
 /**** INTERNAL FUNCTION PROTOTYPES ****/
@@ -55,103 +53,102 @@ interpret_position_number(
     return pos_char;
 }
 
+bool
+board_adjust_position(MEVENT *position)
+{
+    bool valid = false;
+    if (position != NULL)
+    {
+#ifdef DEBUG
+        int row = 0;
+        int col = 0;
+        getmaxyx(stdscr, row, col);
+        wmove(stdscr, row - 5, col - col);
+        wprintw(stdscr, "BEF COORDS: %x %x\n", position->y, position->x);
+        wmove(stdscr, row, col - col);
+#endif
+        valid = wmouse_trafo(board_win, &(position->y), &(position->x), false);
+#ifdef DEBUG
+        wprintw(stdscr, "AFT COORDS: %x %x\n", position->y, position->x);
+#endif
+        if (valid)
+        {
+            if (position->x < CELL_X_SEP_POS)
+            {
+                position->x = MARKER_POS_X * 1;
+            }
+            else if (position->x < (CELL_X_SEP_POS * 2))
+            {
+                position->x = MARKER_POS_X * 3;
+            }
+            else if (position->x < (CELL_X_SEP_POS * 3))
+            {
+                position->x = MARKER_POS_X * 5;
+            }
+            else
+            {
+                valid = false;
+            }
+
+            if (valid)
+            {
+                if (position->y <= CELL_Y_SEP_POS)
+                {
+                    position->y = (MARKER_POS_Y * 1) + 0;
+                }
+                else if (position->y <= (CELL_Y_SEP_POS * 2))
+                {
+                    position->y = (MARKER_POS_Y * 2) + 1;
+                }
+                else if (position->y <= (CELL_Y_SEP_POS * 3))
+                {
+                    position->y = (MARKER_POS_Y * 3) + 2;
+                }
+                else
+                {
+                    valid = false;
+                }
+            }
+        }
+
+#ifdef DEBUG
+        wprintw(stdscr, "AFT AFT COORDS: %x %x\n", position->y, position->x);
+#endif
+    }
+
+    return valid;
+}
+
+bool
+board_spot_taken(MEVENT position)
+{
+    bool taken = false;
+    if (board[position.y][position.x] != ' ')
+    {
+        taken = true;
+    }
+
+    return taken;
+}
+
 void
 board_setup(MEVENT *position, int player_num)
 {
     if (position != NULL)
     {
-        wmouse_trafo(board_win, &(position->y), &(position->x), false);
+        board[position->y][position->x] = (player_num == PLAYER_ONE) ?
+            'X' : 'O';
     }
 
-    size_t cell_y_pos = CELL_Y_BEG;
     for (size_t y_pos = WIN_BEGIN_Y_POS;
          y_pos <= BOARD_HEIGHT;
          ++y_pos)
     {
-        wmove(board_win, y_pos, WIN_BEGIN_X_POS);
-        size_t cell_x_pos = CELL_X_BEG;
-        for (size_t x_pos = WIN_BEGIN_X_POS;
-             x_pos <= BOARD_WIDTH;
-             ++x_pos)
-        {
-            // Are we at a column seperator?
-            if ((cell_x_pos != CELL_X_BEG) &&
-                ((cell_x_pos % CELL_X_SEP_POS) == 0))
-            {
-                waddstr(board_win, "|");
-                cell_x_pos = CELL_X_BEG;
-            }
-            else
-            {
-                if ((cell_y_pos == MARKER_POS_Y) &&
-                    (cell_x_pos == MARKER_POS_X))
-                {
-                    // Which position are we printing?
-                    size_t pos_row = 0;
-                    if (y_pos == 5)
-                    {
-                        pos_row = 1;
-                    }
-                    else if (y_pos == 8)
-                    {
-                        pos_row = 2;
-                    }
-
-                    size_t pos_col = 0;
-                    if (x_pos == 9)
-                    {
-                        pos_col = 1;
-                    }
-                    else if (x_pos == 15)
-                    {
-                        pos_col = 2;
-                    }
-
-                    // Do we have a marker to add?
-                    if ((position != NULL) &&
-                        (position->y == y_pos) &&
-                        (position->x == x_pos))
-                    {
-#ifdef DEBUG
-                        printw("POS_Y: %d\tPOS_X: %d\n", y_pos, x_pos);
-                        printw("POS_ROW: %d\tPOS_COL: %d\n", pos_row, pos_col);
-                        printw("PLAYER_NUM: %d\n", player_num);
-#endif
-                        positions[pos_row][pos_col] = player_num;
-                    }
-
-                    char position_num[256] = "";
-                    sprintf(position_num, "%c",
-                        interpret_position_number(positions[pos_row][pos_col]));
-                    waddstr(board_win, position_num);
-                }
-                // Are we at a row seperator
-                else if ((cell_y_pos != CELL_Y_BEG) &&
-                         (y_pos != BOARD_HEIGHT) &&
-                         ((cell_y_pos % CELL_Y_SEP_POS) == 0))
-                {
-                    waddstr(board_win, "_");
-                }
-                else
-                {
-                    waddstr(board_win, " ");
-                }
-                ++cell_x_pos;
-            }
-        }
-
-        if ((cell_y_pos != CELL_Y_BEG) &&
-            (y_pos != BOARD_HEIGHT) &&
-            ((cell_y_pos % CELL_Y_SEP_POS) == 0))
-        {
-            cell_y_pos = 0;
-        }
-        else
-        {
-            ++cell_y_pos;
-        }
+        mvwaddnstr(
+            board_win,
+            y_pos, WIN_BEGIN_X_POS,
+            board[y_pos] + WIN_BEGIN_X_POS, BOARD_WIDTH);
     }
-
     wrefresh(board_win);
 }
 

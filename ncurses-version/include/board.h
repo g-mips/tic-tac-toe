@@ -14,6 +14,8 @@
 #define PLAYER_TWO -2
 #define DRAW -3
 
+bool board_adjust_position(MEVENT *position);
+bool board_spot_taken(MEVENT position);
 void board_setup(MEVENT *position, int player_num);
 void board_init(void);
 void board_fini(void);

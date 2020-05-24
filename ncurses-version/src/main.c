@@ -30,9 +30,35 @@ main(int argc, char ** argv)
     board_init();
     board_setup(NULL, DRAW);
 
-    MEVENT event = player_input_choice();
-
-    board_setup(&event, PLAYER_ONE);
+    int cur_player = PLAYER_ONE;
+    bool quit = false;
+    while (!quit)
+    {
+        bool choosen = false;
+        MEVENT event = { 0 };
+        while (!choosen)
+        {
+            event = player_input_choice();
+            if (board_adjust_position(&event))
+            {
+#ifdef DEBUG
+                mvprintw(0, 0, "                    ");
+#endif
+                if (!board_spot_taken(event))
+                {
+                    choosen = true;
+                }
+            }
+#ifdef DEBUG
+            else
+            {
+                mvprintw(0, 0, "Not valid\n");
+            }
+#endif
+        }
+        board_setup(&event, cur_player);
+        cur_player = (cur_player == PLAYER_ONE) ? PLAYER_TWO : PLAYER_ONE;
+    }
 
     getch();
 
