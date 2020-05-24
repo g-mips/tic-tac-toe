@@ -38,7 +38,12 @@ main(int argc, char ** argv)
         MEVENT event = { 0 };
         while (!choosen)
         {
-            event = player_input_choice();
+            event = player_input_choice(&quit);
+            if (quit)
+            {
+                break;
+            }
+
             if (board_adjust_position(&event))
             {
 #ifdef DEBUG
@@ -56,11 +61,13 @@ main(int argc, char ** argv)
             }
 #endif
         }
-        board_setup(&event, cur_player);
-        cur_player = (cur_player == PLAYER_ONE) ? PLAYER_TWO : PLAYER_ONE;
-    }
 
-    getch();
+        if (!quit)
+        {
+            board_setup(&event, cur_player);
+            cur_player = (cur_player == PLAYER_ONE) ? PLAYER_TWO : PLAYER_ONE;
+        }
+    }
 
     endwin(); /* End curses mode */
 

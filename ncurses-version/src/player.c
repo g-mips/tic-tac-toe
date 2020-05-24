@@ -14,7 +14,7 @@ player_init(void)
 }
 
 MEVENT
-player_input_choice(void)
+player_input_choice(bool *quit)
 {
     MEVENT event;
     bool done = false;
@@ -29,6 +29,14 @@ player_input_choice(void)
                 {
                     done = true;
                 }
+            }
+        }
+        else
+        {
+            if (quit != NULL && ch == 'q')
+            {
+                *quit = true;
+                done = true;
             }
         }
     }
