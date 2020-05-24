@@ -29,6 +29,10 @@ player_input_choice(bool *quit)
                 {
                     done = true;
                 }
+                else if (event.bstate & BUTTON1_RELEASED)
+                {
+                    done = true;
+                }
             }
         }
         else
