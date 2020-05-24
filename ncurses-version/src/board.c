@@ -84,8 +84,9 @@ board_who_won()
                 // Diagonals
                 if (IS_EVEN(index))
                 {
-                    if ((*markers[index] == *markers[index + (4 - index)]) &&
-                        (*markers[index] == *markers[index + (8 - index)]))
+                    size_t divisor = (index == 0) ? 1 : index;
+                    if ((*markers[index] == *markers[index + (4 / divisor)]) &&
+                        (*markers[index] == *markers[index + (8 / divisor)]))
                     {
                         player_who_won = (*markers[index] == 'X') ?
                             PLAYER_ONE : PLAYER_TWO;
