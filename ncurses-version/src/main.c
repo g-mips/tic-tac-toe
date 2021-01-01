@@ -38,7 +38,7 @@ main(int argc, char ** argv)
     while (!quit)
     {
         mvprintw((LINES / 2) + (LINES / 4), (COLS / 2),
-            "%s's turn!", cur_player_name);
+            "%s's turn!%*s", cur_player_name, PLAYER_MAX_STR_SIZE, "");
         bool choosen = false;
         MEVENT event = { 0 };
         while (!choosen)
